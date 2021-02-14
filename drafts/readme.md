@@ -1,5 +1,7 @@
 NON working drafts for trying out FiPy tools
 
+eq = (TransientTerm() == DiffusionTerm(coeff=diffCoeff) + PowerLawConvectionTerm(coeff=convCoeff) + sourceCoeff)
+
 Copy1, Copy2 próbálkozások
 
 Copy3:
