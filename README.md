@@ -1,4 +1,11 @@
 # szakdolgozat
+Telepítés:
+1. Új Anaconda enviromnetben CMD
+2. >>> conda create --name <MYFIPYENV> --channel conda-forge python=3.9 numpy scipy matplotlib future
+3. >>> pip install fipy
+
+Jupyter Notebook-ot az adott környezetben futtatva használhatók a script-ek
+
 1D convection-diffusion equation solvers (in progress)
 - with constant coefficients
 - with time dependent coefficients
