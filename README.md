@@ -2,8 +2,10 @@
 
 1D convection-diffusion equation solver (in progress)
 - with time and space dependent coefficinets
-- with Dirac-delta initial value conditions
+- with coefficient reading from CSV files
+- with Dirac-delta and uniform density initial value conditions
 - with 2D time vs. space contour plotting
+- with solving on cylindrical mesh with basic Jacobian
 
 Setup:
 1. New Anaconda enviromnet -> Anaconda CMD Prompt:
