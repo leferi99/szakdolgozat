@@ -5,7 +5,8 @@
 - with coefficient reading from CSV files
 - with Dirac-delta and uniform density initial value conditions
 - with 2D time vs. space contour plotting
-- with solving on cylindrical mesh with basic Jacobian
+- with solving on cylindrical mesh
+- with partial HDF5 export and import capabilities
 
 Setup:
 1. New Anaconda enviromnet -> Anaconda CMD Prompt:
