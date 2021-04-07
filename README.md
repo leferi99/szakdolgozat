@@ -10,7 +10,7 @@
 
 Setup:
 1. New Anaconda enviromnet -> Anaconda CMD Prompt:
-2. `>>> conda create --name <MYFIPYENV> --channel conda-forge python=3.9.2 numpy scipy matplotlib future`
+2. `>>> conda create --name <MYFIPYENV> --channel conda-forge python=3.9.2 numpy scipy matplotlib future h5py`
 3. `>>> pip install fipy`
 4. Run Jupyter Notebook 6.1.4 or higher in MYFIPYENV
 5. Run scripts
