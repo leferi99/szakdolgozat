@@ -1,4 +1,5 @@
 # Verification plots
+First of all watch ot for the timescale!
 
 This folder contains plots of the numerical solution for different initial conditions and coefficients as well as the plots of the half-analytical solutions, which were calculated on the same time and space resolution as their numerical counterparts with the use of a numerical Dirac-delta function. 
 We can see a significant numerical diffusion in lower resolutions, but around the 10^4 by 10^4 resolution, the difference between the numerical and analytical solution diminishes.
