@@ -1,12 +1,13 @@
 # szakdolgozat - Bachelor's thesis
 
 1D convection-diffusion equation solver (in progress)
-- with time and space dependent coefficinets
-- with coefficient reading from CSV files
-- with Dirac-delta and uniform density initial value conditions
-- with 2D time vs. space contour plotting
-- with solving on cylindrical mesh
-- with partial HDF5 export and import capabilities
+- time and space dependent coefficinets
+- coefficient reading from CSV files
+- Dirac-delta and uniform density initial value conditions
+- 2D time vs. space contour plotting
+- solving on cylindrical mesh
+- partial HDF5 export and import capabilities
+- convection verified with analytical solution
 
 Setup:
 1. New Anaconda enviromnet -> Anaconda CMD Prompt:
