@@ -38,5 +38,5 @@
 build/
 
 __pycache__/
-*.jpg
+.ipynb_checkpoints/
 *.hdf5
