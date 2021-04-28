@@ -39,6 +39,4 @@ build/
 
 __pycache__/
 *.jpg
-*.jpeg
-*.png
 *.hdf5
