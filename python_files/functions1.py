@@ -8,11 +8,13 @@ import math
 import h5py
 import datetime
 
+plt.rcParams.update({'font.size': 18})
+
 def delta_func(x, epsilon, coeff):
     return ((x < epsilon) & (x > -epsilon)) * \
         (coeff * (1 + numerix.cos(numerix.pi * x / epsilon)) / (2 * epsilon))
 
-def plot_solution(solution_array,ticks=None,levels=300,logdiff=10,figsize=(10,4),duration=0.001,nt=1000):
+def plot_solution(solution_array,ticks=None,levels=300,logdiff=5,figsize=(10,4),duration=0.001,nt=1000, saveplot=False):
     if ticks == None:
         ticks = logdiff
     else:
@@ -42,6 +44,13 @@ def plot_solution(solution_array,ticks=None,levels=300,logdiff=10,figsize=(10,4)
     plt.xlabel('normalized radius')
     plt.ylabel(r'log$_{10}$[time (s)]')
     plt.title(r'Density of runaway electrons')
+    plt.gcf().subplots_adjust(bottom=0.2)
+    if saveplot == True:
+        now = datetime.datetime.now()
+        date_time = now.strftime("%Y%m%d_%H.%M.%S")
+        plt.savefig("solution_" + date_time + ".jpg", dpi=150)
+    else:
+        1
     return
 
 def coeff_plot(conv_i, diff_i):
@@ -51,6 +60,7 @@ def coeff_plot(conv_i, diff_i):
     fig_diff = plt.figure(figsize=(8.5,3))
     plt.plot(*diff_i.T)
     plt.title('Diffusion coefficient')
+    return
     
 def hdf5_save(fname, solution, diff, conv, duration):
     now = datetime.datetime.now()
@@ -59,7 +69,8 @@ def hdf5_save(fname, solution, diff, conv, duration):
     h5solution = f_Out.create_dataset("01_solution", data=solution)
     h5duration = f_Out.create_dataset("02_duration", data=duration)
     h5conv = f_Out.create_dataset("03_convcoeff", data=conv)
-    h5diff = f_Out.create_dataset("04_diffcoeff", data=diff)    
+    h5diff = f_Out.create_dataset("04_diffcoeff", data=diff) 
+    return
     
 def plot_hdf5(fname, plotcoeff=False, logdiff=5):
     f_In = h5py.File(fname, "r")
@@ -73,11 +84,13 @@ def plot_hdf5(fname, plotcoeff=False, logdiff=5):
         coeff_plot(conv_i=h5conv[()], diff_i=h5diff[()])
     else:
         1
+        
+    return
 
-def solve_DiracIC(R_from = 0.7, R_to = 1.0, nr = 1000, duration = 0.001, nt = 1000,
+def solve_DiracIC(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, duration = 0.001, nt = 1000,
                   diracLoc = 0.85, diracCoeff = 1., diracPercentage = 2,
                   conv_file = 'convC.txt', diff_file = 'diffC.txt',  plotcoeff = False,
-                  levels = 300, logdiff = 10, ticks = None, figsize=(10,4), hdf5 = False):
+                  levels = 300, logdiff = 6, ticks = None, figsize=(10,4), hdf5 = False):
     
     dr = (R_to - R_from) / nr  ## distance between the centers of the mesh cells
     dt = duration / nt  ## length of one timestep
@@ -119,7 +132,7 @@ def solve_DiracIC(R_from = 0.7, R_to = 1.0, nr = 1000, duration = 0.001, nt = 10
         solution[i,0:nr,1]=copy.deepcopy(n.value)
 
     plot_solution(solution,ticks=ticks,levels=levels,logdiff=logdiff,figsize=figsize,
-                  duration=duration, nt=nt)
+                  duration=duration, nt=nt, saveplot=saveplot)
     if plotcoeff == True:
         coeff_plot(conv_i=conv_i, diff_i=diff_i)
     else:
@@ -130,11 +143,11 @@ def solve_DiracIC(R_from = 0.7, R_to = 1.0, nr = 1000, duration = 0.001, nt = 10
     else:
         1
     
-    return solution
+    return
 
-def solve_uniformIC(R_from = 0.7, R_to = 1.0, nr = 1000, duration = 0.001, nt = 1000,
+def solve_uniformIC(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, duration = 0.001, nt = 1000,
                     conv_file = 'convC.txt', diff_file = 'diffC.txt', plotcoeff = False,
-                    levels = 300, logdiff = 10, ticks = None, figsize=(10,4), hdf5 = False):
+                    levels = 300, logdiff = 5, ticks = None, figsize=(10,4), hdf5 = False):
     
     dr = (R_to - R_from) / nr  ## distance between the centers of the mesh cells
     dt = duration / nt  ## length of one timestep
@@ -175,7 +188,7 @@ def solve_uniformIC(R_from = 0.7, R_to = 1.0, nr = 1000, duration = 0.001, nt = 
         solution[i,0:nr,1]=copy.deepcopy(n.value)
 
     plot_solution(solution,ticks=ticks,levels=levels,logdiff=logdiff,figsize=figsize,
-                  duration=duration, nt=nt)
+                  duration=duration, nt=nt, saveplot=saveplot)
     if plotcoeff == True:
         coeff_plot(conv_i=conv_i, diff_i=diff_i)
     else:
@@ -186,4 +199,13 @@ def solve_uniformIC(R_from = 0.7, R_to = 1.0, nr = 1000, duration = 0.001, nt = 
     else:
         1
     
-    return solution
+    return
+
+def fhelp():
+    fname = "help.txt"
+    with open(fname, 'r') as fin:
+        print(fin.read(), end="")
+    
+    return
+
+print("For usage help call fhelp()")

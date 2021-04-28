@@ -1,0 +1,22 @@
+plot_solution(solution_array, ticks = None, levels = 300, logdiff = 10,
+			  figsize = (10,4), duration = 0.001, nt = 1000,
+			  saveplot = False)
+
+coeff_plot(conv_i, diff_i)
+
+hdf5_save(fname, solution, diff, conv, duration)
+
+plot_hdf5(fname, plotcoeff=False, logdiff=5)
+
+solve_DiracIC(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, 
+			  duration = 0.001, nt = 1000, diracLoc = 0.85, 
+			  diracCoeff = 1., diracPercentage = 2, conv_file = 'convC.txt',
+			  diff_file = 'diffC.txt',  plotcoeff = False, levels = 300, 
+			  logdiff = 10, ticks = None, figsize=(10,4), hdf5 = False)
+              
+solve_uniformIC(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000,
+				duration = 0.001, nt = 1000, conv_file = 'convC.txt',
+				diff_file = 'diffC.txt',  plotcoeff = False,
+                levels = 300, logdiff = 10, ticks = None, 
+				figsize=(10,4), hdf5 = False)
+				
