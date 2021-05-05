@@ -433,7 +433,7 @@ def solve_Dreicer_withI(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, d
         pass
     
     islands_ratio[:,1] = savgol_filter(islands_ratio[:,1],w_length, 3)
-    re_in_islands = islands_ratio[:,1]
+    re_ratio = islands_ratio[:,1]
     
     gradLeft = (0.,)  ## density gradient (at the "left side of the radius") - must be a vector
     valueRight = 0.  ## density value (at the "right end of the radius")
@@ -466,11 +466,11 @@ def solve_Dreicer_withI(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, d
         
         eq.solve(var=n, dt=dt)
         if i == 0:
-            solution[i,0:nr,1] = copy.deepcopy(n.value) + re_in_islands * copy.deepcopy(n.value)
+            solution[i,0:nr,1] = copy.deepcopy(n.value)
+            re_in_islands = re_ratio * copy.deepcopy(n.value)
         else:
-            re_in_islands = re_in_islands / (re_in_islands + copy.deepcopy(n.value))
-            solution[i,0:nr,1] = copy.deepcopy(n.value) + re_in_islands * copy.deepcopy(n.value)
-            re_in_islands = solution[i,0:nr,1] * re_in_islands
+            re_in_islands = (re_in_islands + copy.deepcopy(n.value) - solution[i-1,0:nr,1]) * re_ratio
+            solution[i,0:nr,1] = copy.deepcopy(n.value) + re_in_islands
 
     plot_solution(solution,ticks=ticks,levels=levels,logdiff=logdiff,figsize=figsize,
                   duration=duration, nt=nt, saveplot=saveplot)
