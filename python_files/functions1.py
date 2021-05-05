@@ -38,7 +38,7 @@ else:
 	library_path = path.abspath(path.join(basepath, "..", "build/src/libRunaphys.so"))
 	
 lib_Runaphys = ct.CDLL(library_path)
-adv_RE_pop = lib_Runaphys.Runaphys_advance_runaway_population
+adv_RE_pop = lib_Runaphys.runaphys_advance_runaway_population
 adv_RE_pop.argtypes = ct.POINTER(PLASMA),ct.c_double,ct.c_double,ct.c_double,ct.POINTER(MODULE),ct.POINTER(ct.c_double)
 adv_RE_pop.restype = ct.c_double
 rate_values_type = (ct.c_double * 4)
@@ -73,9 +73,11 @@ def plot_solution(solution_array,ticks=None,levels=300,logdiff=5,figsize=(10,4),
     axes.set_facecolor((0.,0.,0.25)) ## dark blue will display where the values are too small
     axes.set_yscale('log')
     cbar = plt.colorbar(ticks=ticks1, format=formatter)
-    cbar.set_label(r'Density (a. u.)')
+    cbar.set_label(r'Density (1/m$^3$)')
+    cbar.formatter = LogFormatterExponent(base=10) # 10 is the default
+    cbar.update_ticks()
     plt.xlabel('normalized radius')
-    plt.ylabel(r'log$_{10}$[time (s)]')
+    plt.ylabel(r'log$_{10}$[time(s)/1s]')
     plt.title(r'Density of runaway electrons')
     plt.gcf().subplots_adjust(bottom=0.2)
     if saveplot == True:
@@ -272,6 +274,82 @@ def solve_Dreicer(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, duratio
     diffCoeff.setValue(0.001, where=mesh.x<(R_from + dr))  ## diffusion coefficient almost 0 at inner edge
     
     modules = MODULE(b"hc_formula_63",False,b"",False,False,1.0,1.0001)
+    electron_temperature = ct.c_double(300.)
+    electron_density = ct.c_double(1e20)
+    effective_charge = ct.c_double(1.)
+    electric_field = ct.c_double(3.66)
+    magnetic_field = ct.c_double(1.)
+    inv_asp_ratio = ct.c_double(0.30303)
+    rate_values = (ct.c_double * 4)(0.,0.,0.,0.)
+    
+    eq = (fp.TransientTerm() == fp.DiffusionTerm(coeff=diffCoeff)
+          - fp.ConvectionTerm(coeff=convCoeff))
+    for i in range(nt):
+        for j in range(nr):
+            plasma_local = PLASMA(ct,c_double(mesh.x[j]),
+                                  electron_density,
+                                  electron_temperature,
+                                  effective_charge,
+                                  electric_field,
+                                  magnetic_field,
+                                  ct.c_double(n.value[j]))
+            n.value[j] = adv_RE_pop(ct.byref(plasma_local),dt,inv_asp_ratio,c_double(mesh.x[j]),ct.byref(modules),rate_values)
+        
+        eq.solve(var=n, dt=dt)
+        solution[i,0:nr,1]=copy.deepcopy(n.value)
+
+    plot_solution(solution,ticks=ticks,levels=levels,logdiff=logdiff,figsize=figsize,
+                  duration=duration, nt=nt, saveplot=saveplot)
+    if plotcoeff == True:
+        coeff_plot(conv_i=conv_i, diff_i=diff_i)
+    else:
+        1
+    
+    if hdf5 == True:
+        hdf5_save(fname="uniformIC", solution=solution, conv=conv_i, diff=diff_i, duration=duration)
+    else:
+        1
+    
+    return
+    
+def solve_avalanche(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, duration = 0.001, nt = 1000,
+                    conv_file = 'convC.txt', diff_file = 'diffC.txt', plotcoeff = False,
+                    levels = 300, logdiff = 5, ticks = None, figsize=(10,4), hdf5 = False):
+    
+    dr = (R_to - R_from) / nr  ## distance between the centers of the mesh cells
+    dt = duration / nt  ## length of one timestep
+    solution = np.zeros((nt,nr,2))
+    for j in range(nr):
+        solution[:,j,0] = (j * dr) + (dr / 2) + R_from
+
+    mesh = fp.CylindricalGrid1D(dx=dr, nx=nr)  ## 1D mesh based on the radial coordinates 
+    mesh = mesh + (R_from,)  ## translation of the mesh to R_from
+    n = fp.CellVariable(mesh=mesh)  ## fipy.CellVariable for the density solution in each timestep
+    conv_data = np.genfromtxt(conv_file, delimiter=',')
+    diff_data = np.genfromtxt(diff_file, delimiter=',')
+    conv_i = np.zeros((nr, 2))
+    diff_i = np.zeros((nr, 2))
+    for i in range(conv_i.shape[0]):
+        conv_i[i, 0] = R_from + (i * dr) + (dr / 2)
+
+    for i in range(diff_i.shape[0]):
+        diff_i[i, 0] = R_from + (i * dr) + (dr / 2)
+
+    conv_i[:,1] = np.interp(conv_i[:,0],conv_data[:,0],conv_data[:,1])
+    diff_i[:,1] = np.interp(diff_i[:,0],diff_data[:,0],diff_data[:,1])
+    dC = diff_i[:,1]
+    diffCoeff = fp.CellVariable(mesh=mesh, value=dC)
+    cC = conv_i[:,1]
+    convCoeff = fp.CellVariable(mesh=mesh, value=[cC])
+    n.setValue(1.0)
+    gradLeft = (0.,)  ## density gradient (at the "left side of the radius") - must be a vector
+    valueRight = 0.  ## density value (at the "right end of the radius")
+    n.faceGrad.constrain(gradLeft, where=mesh.facesLeft)  ## applying Neumann boundary condition
+    n.constrain(valueRight, mesh.facesRight)  ## applying Dirichlet boundary condition
+    convCoeff.setValue(0, where=mesh.x<(R_from + dr))  ## convection coefficient 0 at the inner edge
+    diffCoeff.setValue(0.001, where=mesh.x<(R_from + dr))  ## diffusion coefficient almost 0 at inner edge
+    
+    modules = MODULE(b"",False,b"rosenbluth_putvinski",False,False,1.0,1.0001)
     electron_temperature = ct.c_double(300.)
     electron_density = ct.c_double(1e20)
     effective_charge = ct.c_double(1.)
