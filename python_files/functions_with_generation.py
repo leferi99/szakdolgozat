@@ -459,7 +459,7 @@ def solve_avalanche_withI(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000,
                               electric_field,
                               magnetic_field,
                               ct.c_double(re_in_islands[j]))
-            re_in_islands[j] = adv_RE_pop(ct.byref(plasma_local),dt,inv_asp_ratio,ct.c_double(mesh.x[j]),ct.byref(modules),rate_values)
+            re_in_islands[j] = adv_RE_pop(ct.byref(re_local),dt,inv_asp_ratio,ct.c_double(mesh.x[j]),ct.byref(modules),rate_values)
         
         eq.solve(var=n, dt=dt)
         solution[i,0:nr,1] = copy.deepcopy(n.value) + re_in_islands
