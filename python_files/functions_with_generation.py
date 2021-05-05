@@ -304,6 +304,8 @@ def solve_Dreicer_withI(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, d
     cC = conv_i[:,1]
     convCoeff = fp.CellVariable(mesh=mesh, value=[cC])
     
+    n.setValue(0.0)
+    
     idata = np.genfromtxt('island_data.csv', delimiter=',')
     islands_ratio = np.zeros((nr,2))
     for i in range(nr):
@@ -318,6 +320,7 @@ def solve_Dreicer_withI(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, d
     
     islands_ratio[:,1] = savgol_filter(islands_ratio[:,1],w_length, 3)
     re_ratio = islands_ratio[:,1]
+    re_in_islands = re_ratio * n.value
     
     gradLeft = (0.,)  ## density gradient (at the "left side of the radius") - must be a vector
     valueRight = 0.  ## density value (at the "right end of the radius")
@@ -352,8 +355,10 @@ def solve_Dreicer_withI(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, d
         if i == 0:
             solution[i,0:nr,1] = copy.deepcopy(n.value)
             re_in_islands = re_ratio * copy.deepcopy(n.value)
+            n.value = copy.deepcopy(n.value) - re_in_islands
         else:
-            re_in_islands = (re_in_islands + copy.deepcopy(n.value) - solution[i-1,0:nr,1]) * re_ratio
+            re_in_islands = re_in_islands + ((copy.deepcopy(n.value) - solution[i-1,0:nr,1]) * re_ratio)
+            n.value = copy.deepcopy(n.value) - ((copy.deepcopy(n.value) - solution[i-1,0:nr,1]) * re_ratio)
             solution[i,0:nr,1] = copy.deepcopy(n.value) + re_in_islands
 
     plot_solution(solution,ticks=ticks,levels=levels,logdiff=logdiff,figsize=figsize,
@@ -414,6 +419,7 @@ def solve_avalanche_withI(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000,
     
     islands_ratio[:,1] = savgol_filter(islands_ratio[:,1],w_length, 3)
     islands_ratio[islands_ratio < 0] = 0
+    re_ratio = islands_ratio[:,1]
     n.setValue(n0)
     n.setValue(n.value[:] - (islands_ratio[:,1] * n0))
     re_in_islands = islands_ratio[:,1] * n0
@@ -446,11 +452,17 @@ def solve_avalanche_withI(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000,
                                   magnetic_field,
                                   ct.c_double(n.value[j]))
             n.value[j] = adv_RE_pop(ct.byref(plasma_local),dt,inv_asp_ratio,ct.c_double(mesh.x[j]),ct.byref(modules),rate_values)
+            re_local = PLASMA(ct.c_double(mesh.x[j]),
+                              electron_density,
+                              electron_temperature,
+                              effective_charge,
+                              electric_field,
+                              magnetic_field,
+                              ct.c_double(re_in_islands[j]))
+            re_in_islands[j] = adv_RE_pop(ct.byref(plasma_local),dt,inv_asp_ratio,ct.c_double(mesh.x[j]),ct.byref(modules),rate_values)
         
         eq.solve(var=n, dt=dt)
-        re_in_islands = re_in_islands / (re_in_islands + copy.deepcopy(n.value))
-        solution[i,0:nr,1] = copy.deepcopy(n.value) + re_in_islands * copy.deepcopy(n.value)
-        re_in_islands = solution[i,0:nr,1] * re_in_islands
+        solution[i,0:nr,1] = copy.deepcopy(n.value) + re_in_islands
 
     plot_solution(solution,ticks=ticks,levels=levels,logdiff=logdiff,figsize=figsize,
                   duration=duration, nt=nt, saveplot=saveplot)
