@@ -531,7 +531,7 @@ def solve_avalanche_withI(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000,
     islands_ratio[:,1] = savgol_filter(islands_ratio[:,1],w_length, 3)
     islands_ratio[islands_ratio < 0] = 0
     n.setValue(n0)
-    n.setValue(n.Value[:] - (islands_ratio[:,1] * n0))
+    n.setValue(n.value[:] - (islands_ratio[:,1] * n0))
     re_in_islands = islands_ratio[:,1] * n0
     
     gradLeft = (0.,)  ## density gradient (at the "left side of the radius") - must be a vector
