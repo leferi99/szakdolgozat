@@ -31,12 +31,13 @@ class PLASMA(ct.Structure):
                 ("magnetic_field", ct.c_double),
                 ("runaway_density", ct.c_double)]
 
-basepath = path.dirname("python_constructor.py")
-if platform.system() == 'Windows':
-	library_path = path.abspath(path.join(basepath, "..", "build/src/libRunaphys.dll"))
-else:
-	library_path = path.abspath(path.join(basepath, "..", "build/src/libRunaphys.so"))
+#basepath = path.dirname("python_constructor.py")
+#if platform.system() == 'Windows':
+#	library_path = path.abspath(path.join(basepath, "..", "build/src/libRunaphys.dll"))
+#else:
+#	library_path = path.abspath(path.join(basepath, "..", "build/src/libRunaphys.so"))
 	
+library_path=("/pfs/work/g2fleng/Runaphys/build/src/libRunaphys.so")
 lib_Runaphys = ct.CDLL(library_path)
 adv_RE_pop = lib_Runaphys.runaphys_advance_runaway_population
 adv_RE_pop.argtypes = ct.POINTER(PLASMA),ct.c_double,ct.c_double,ct.c_double,ct.POINTER(MODULE),ct.POINTER(ct.c_double)
@@ -286,14 +287,14 @@ def solve_Dreicer(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, duratio
           - fp.ConvectionTerm(coeff=convCoeff))
     for i in range(nt):
         for j in range(nr):
-            plasma_local = PLASMA(ct,c_double(mesh.x[j]),
+            plasma_local = PLASMA(ct.c_double(mesh.x[j]),
                                   electron_density,
                                   electron_temperature,
                                   effective_charge,
                                   electric_field,
                                   magnetic_field,
                                   ct.c_double(n.value[j]))
-            n.value[j] = adv_RE_pop(ct.byref(plasma_local),dt,inv_asp_ratio,c_double(mesh.x[j]),ct.byref(modules),rate_values)
+            n.value[j] = adv_RE_pop(ct.byref(plasma_local),dt,inv_asp_ratio,ct.c_double(mesh.x[j]),ct.byref(modules),rate_values)
         
         eq.solve(var=n, dt=dt)
         solution[i,0:nr,1]=copy.deepcopy(n.value)
@@ -362,14 +363,14 @@ def solve_avalanche(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, durat
           - fp.ConvectionTerm(coeff=convCoeff))
     for i in range(nt):
         for j in range(nr):
-            plasma_local = PLASMA(ct,c_double(mesh.x[j]),
+            plasma_local = PLASMA(ct.c_double(mesh.x[j]),
                                   electron_density,
                                   electron_temperature,
                                   effective_charge,
                                   electric_field,
                                   magnetic_field,
                                   ct.c_double(n.value[j]))
-            n.value[j] = adv_RE_pop(ct.byref(plasma_local),dt,inv_asp_ratio,c_double(mesh.x[j]),ct.byref(modules),rate_values)
+            n.value[j] = adv_RE_pop(ct.byref(plasma_local),dt,inv_asp_ratio,ct.c_double(mesh.x[j]),ct.byref(modules),rate_values)
         
         eq.solve(var=n, dt=dt)
         solution[i,0:nr,1]=copy.deepcopy(n.value)
