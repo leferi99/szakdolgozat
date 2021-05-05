@@ -48,7 +48,7 @@ def delta_func(x, epsilon, coeff):
     return ((x < epsilon) & (x > -epsilon)) * \
         (coeff * (1 + numerix.cos(numerix.pi * x / epsilon)) / (2 * epsilon))
 
-def plot_solution(solution_array,ticks=None,levels=300,logdiff=5,figsize=(10,4),duration=0.001,nt=1000, saveplot=False):
+def plot_solution(solution_array,ticks=None,levels=300,logdiff=5,figsize=(10,5),duration=0.001,nt=1000, saveplot=False):
     if ticks == None:
         ticks = logdiff
     else:
@@ -73,11 +73,12 @@ def plot_solution(solution_array,ticks=None,levels=300,logdiff=5,figsize=(10,4),
     axes = plt.gca()
     axes.set_facecolor((0.,0.,0.25)) ## dark blue will display where the values are too small
     axes.set_yscale('log')
+    axes.yaxis.set_major_formatter(matplotlib.ticker.LogFormatterExponent(base=10))
     cbar = plt.colorbar(ticks=ticks1, format=formatter)
-    cbar.set_label(r'Density (1/m$^3$)')
-    cbar.formatter = LogFormatterExponent(base=10) # 10 is the default
+    cbar.set_label(r'log$_{10}$(Density (m$^{-3}$)/1m$^{-3}$)')
+    cbar.formatter = matplotlib.ticker.LogFormatterExponent(base=10) # 10 is the default
     cbar.update_ticks()
-    plt.xlabel('normalized radius')
+    plt.xlabel(r'$\rho$')
     plt.ylabel(r'log$_{10}$[time(s)/1s]')
     plt.title(r'Density of runaway electrons')
     plt.gcf().subplots_adjust(bottom=0.2)
@@ -126,7 +127,7 @@ def plot_hdf5(fname, plotcoeff=False, logdiff=5):
 def solve_DiracIC(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, duration = 0.001, nt = 1000,
                   diracLoc = 0.85, diracCoeff = 1., diracPercentage = 2,
                   conv_file = 'convC.txt', diff_file = 'diffC.txt',  plotcoeff = False,
-                  levels = 300, logdiff = 6, ticks = None, figsize=(10,4), hdf5 = False):
+                  levels = 300, logdiff = 6, ticks = None, figsize=(10,5), hdf5 = False):
     
     dr = (R_to - R_from) / nr  ## distance between the centers of the mesh cells
     dt = duration / nt  ## length of one timestep
@@ -179,11 +180,11 @@ def solve_DiracIC(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, duratio
     else:
         1
     
-    return
+    return solution
 
 def solve_uniformIC(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, duration = 0.001, nt = 1000,
                     conv_file = 'convC.txt', diff_file = 'diffC.txt', plotcoeff = False,
-                    levels = 300, logdiff = 5, ticks = None, figsize=(10,4), hdf5 = False):
+                    levels = 300, logdiff = 5, ticks = None, figsize=(10,5), hdf5 = False):
     
     dr = (R_to - R_from) / nr  ## distance between the centers of the mesh cells
     dt = duration / nt  ## length of one timestep
@@ -235,11 +236,11 @@ def solve_uniformIC(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, durat
     else:
         1
     
-    return
+    return solution
     
 def solve_Dreicer(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, duration = 0.001, nt = 1000,
                     conv_file = 'convC.txt', diff_file = 'diffC.txt', plotcoeff = False,
-                    levels = 300, logdiff = 5, ticks = None, figsize=(10,4), hdf5 = False):
+                    levels = 300, logdiff = 5, ticks = None, figsize=(10,5), hdf5 = False):
     
     dr = (R_to - R_from) / nr  ## distance between the centers of the mesh cells
     dt = duration / nt  ## length of one timestep
@@ -311,11 +312,11 @@ def solve_Dreicer(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, duratio
     else:
         1
     
-    return
+    return solution
     
 def solve_avalanche(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, duration = 0.001, nt = 1000,
                     conv_file = 'convC.txt', diff_file = 'diffC.txt', plotcoeff = False,
-                    levels = 300, logdiff = 5, ticks = None, figsize=(10,4), hdf5 = False):
+                    levels = 300, logdiff = 5, ticks = None, figsize=(10,5), hdf5 = False):
     
     dr = (R_to - R_from) / nr  ## distance between the centers of the mesh cells
     dt = duration / nt  ## length of one timestep
@@ -342,7 +343,7 @@ def solve_avalanche(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, durat
     diffCoeff = fp.CellVariable(mesh=mesh, value=dC)
     cC = conv_i[:,1]
     convCoeff = fp.CellVariable(mesh=mesh, value=[cC])
-    n.setValue(1.0)
+    n.setValue(1e15)
     gradLeft = (0.,)  ## density gradient (at the "left side of the radius") - must be a vector
     valueRight = 0.  ## density value (at the "right end of the radius")
     n.faceGrad.constrain(gradLeft, where=mesh.facesLeft)  ## applying Neumann boundary condition
@@ -387,7 +388,7 @@ def solve_avalanche(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, durat
     else:
         1
     
-    return
+    return solution
 
 def fhelp():
     fname = "help.txt"

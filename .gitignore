@@ -40,3 +40,4 @@ build/
 __pycache__/
 .ipynb_checkpoints/
 *.hdf5
+python_files/*.jpg
