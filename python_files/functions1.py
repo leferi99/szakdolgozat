@@ -73,9 +73,10 @@ def plot_solution(solution_array,ticks=None,levels=300,logdiff=5,figsize=(10,4),
     axes = plt.gca()
     axes.set_facecolor((0.,0.,0.25)) ## dark blue will display where the values are too small
     axes.set_yscale('log')
+    axes.yaxis.set_major_formatter(matplotlib.ticker.LogFormatterExponent(base=10))
     cbar = plt.colorbar(ticks=ticks1, format=formatter)
-    cbar.set_label(r'Density (1/m$^3$)')
-    cbar.formatter = LogFormatterExponent(base=10) # 10 is the default
+    cbar.set_label(r'log$_{10}$(Density (1/m$^3$))')
+    cbar.formatter = matplotlib.ticker.LogFormatterExponent(base=10) # 10 is the default
     cbar.update_ticks()
     plt.xlabel('normalized radius')
     plt.ylabel(r'log$_{10}$[time(s)/1s]')
@@ -342,7 +343,7 @@ def solve_avalanche(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, durat
     diffCoeff = fp.CellVariable(mesh=mesh, value=dC)
     cC = conv_i[:,1]
     convCoeff = fp.CellVariable(mesh=mesh, value=[cC])
-    n.setValue(1.0)
+    n.setValue(1e15)
     gradLeft = (0.,)  ## density gradient (at the "left side of the radius") - must be a vector
     valueRight = 0.  ## density value (at the "right end of the radius")
     n.faceGrad.constrain(gradLeft, where=mesh.facesLeft)  ## applying Neumann boundary condition
