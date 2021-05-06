@@ -181,6 +181,7 @@ def solve_Dreicer(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, duratio
                                   ct.c_double(n.value[j]))
             n.value[j] = adv_RE_pop(ct.byref(plasma_local),dt,inv_asp_ratio,ct.c_double(mesh.x[j]),ct.byref(modules),rate_values)
         
+        print("{:.1f}".format((i/nt)*100),'%', end='\r')
         eq.solve(var=n, dt=dt)
         solution[i,0:nr,1]=copy.deepcopy(n.value)
 
@@ -257,6 +258,7 @@ def solve_avalanche(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, durat
                                   ct.c_double(n.value[j]))
             n.value[j] = adv_RE_pop(ct.byref(plasma_local),dt,inv_asp_ratio,ct.c_double(mesh.x[j]),ct.byref(modules),rate_values)
         
+        print("{:.1f}".format((i/nt)*100),'%', end='\r')
         eq.solve(var=n, dt=dt)
         solution[i,0:nr,1]=copy.deepcopy(n.value)
 
@@ -351,6 +353,7 @@ def solve_Dreicer_withI(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, d
                                   ct.c_double(n.value[j]))
             n.value[j] = adv_RE_pop(ct.byref(plasma_local),dt,inv_asp_ratio,ct.c_double(mesh.x[j]),ct.byref(modules),rate_values)
         
+        print("{:.1f}".format((i/nt)*100),'%', end='\r')
         eq.solve(var=n, dt=dt)
         if i == 0:
             solution[i,0:nr,1] = copy.deepcopy(n.value)
@@ -461,6 +464,7 @@ def solve_avalanche_withI(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000,
                               ct.c_double(re_in_islands[j]))
             re_in_islands[j] = adv_RE_pop(ct.byref(re_local),dt,inv_asp_ratio,ct.c_double(mesh.x[j]),ct.byref(modules),rate_values)
         
+        print("{:.1f}".format((i/nt)*100),'%', end='\r')
         eq.solve(var=n, dt=dt)
         solution[i,0:nr,1] = copy.deepcopy(n.value) + re_in_islands
 
