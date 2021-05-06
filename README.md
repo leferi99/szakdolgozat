@@ -9,6 +9,8 @@
 - partial HDF5 export and import capabilities
 - convection verified with analytical solution
 - diffusion verified on slab geometry as well as cylindrical geometry
+- runaway generation code implementation - IN PROGRESS
+- in specific functions runaway electrons magnetic islands are treated differently - IN PROGRESS
 
 Setup:
 1. New Anaconda enviromnet -> Anaconda CMD Prompt:
