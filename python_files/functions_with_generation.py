@@ -323,7 +323,8 @@ def solve_Dreicer_withI(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, d
     islands_ratio[:,1] = savgol_filter(islands_ratio[:,1],w_length, 3)
     islands_ratio[islands_ratio < 0] = 0
     re_ratio = islands_ratio[:,1]
-    re_in_islands = re_ratio * n.value
+    re_in_islands = fp.CellVariable(mesh=mesh)
+    re_in_islands.value = re_ratio * n.value
     
     gradLeft = (0.,)  ## density gradient (at the "left side of the radius") - must be a vector
     valueRight = 0.  ## density value (at the "right end of the radius")
@@ -357,20 +358,22 @@ def solve_Dreicer_withI(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, d
         print("{:.1f}".format((i/nt)*100),'%', end='\r')
         eq.solve(var=n, dt=dt)
         if i == 0:
-            solution[i,0:nr,1] = copy.deepcopy(n.value)
-            re_in_islands = re_ratio * copy.deepcopy(n.value)
-            n.value = copy.deepcopy(n.value) - re_in_islands
+            re_in_islands.value = re_ratio * copy.deepcopy(n.value)
+            n.value = copy.deepcopy(n.value) - re_in_islands.value
         else:
-            re_local = PLASMA(ct.c_double(mesh.x[j]),
-                              electron_density,
-                              electron_temperature,
-                              effective_charge,
-                              electric_field,
-                              magnetic_field,
-                              ct.c_double(re_in_islands[j]))
-            re_in_islands[j] = adv_RE_pop(ct.byref(re_local),dt,inv_asp_ratio,ct.c_double(mesh.x[j]),ct.byref(modules),rate_values)
-            n.value = copy.deepcopy(n.value)
-            solution[i,0:nr,1] = copy.deepcopy(n.value) + re_in_islands
+            for j in range(nr):
+                re_local = PLASMA(ct.c_double(mesh.x[j]),
+                                  electron_density,
+                                  electron_temperature,
+                                  effective_charge,
+                                  electric_field,
+                                  magnetic_field,
+                                  ct.c_double(re_in_islands.value[j]))
+                re_in_islands.value[j] = adv_RE_pop(ct.byref(re_local),dt,inv_asp_ratio,ct.c_double(mesh.x[j]),ct.byref(modules),rate_values)
+                n.value = copy.deepcopy(n.value)
+        
+        re_in_islands.value[nr-1] = 0
+        solution[i,0:nr,1] = copy.deepcopy(n.value) + copy.deepcopy(re_in_islands.value)
 
     plot_solution(solution,ticks=ticks,levels=levels,logdiff=logdiff,figsize=figsize,
                   duration=duration, nt=nt, saveplot=saveplot)
@@ -384,7 +387,7 @@ def solve_Dreicer_withI(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, d
     else:
         pass
     
-    return solution
+    return re_in_islands
     
 def solve_avalanche_withI(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, duration = 0.001, nt = 1000,
                     conv_file = 'convC.txt', diff_file = 'diffC.txt', plotcoeff = False, n0 = 1,
@@ -583,8 +586,8 @@ def solve_both_withI(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, dura
                               magnetic_field,
                               ct.c_double(re_in_islands[j]))
             re_in_islands[j] = adv_RE_pop(ct.byref(re_local),dt,inv_asp_ratio,ct.c_double(mesh.x[j]),ct.byref(modules),rate_values)
-            n.value = copy.deepcopy(n.value)
-
+    
+    re_in_islands[nr-1] = 0
     plot_solution(solution,ticks=ticks,levels=levels,logdiff=logdiff,figsize=figsize,
                   duration=duration, nt=nt, saveplot=saveplot)
     if plotcoeff == True:
