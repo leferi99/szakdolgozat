@@ -199,7 +199,7 @@ def solve_Dreicer(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, duratio
     
     return solution
     
-def solve_avalanche(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, duration = 0.1, nt = 1000,
+def solve_avalanche(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, duration = 0.001, nt = 1000,
                     conv_file = 'convC.txt', diff_file = 'diffC.txt', plotcoeff = False,
                     levels = 300, logdiff = 5, ticks = None, figsize=(10,5), hdf5 = False):
     
@@ -224,9 +224,9 @@ def solve_avalanche(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, durat
 
     conv_i[:,1] = np.interp(conv_i[:,0],conv_data[:,0],conv_data[:,1])
     diff_i[:,1] = np.interp(diff_i[:,0],diff_data[:,0],diff_data[:,1])
-    dC = diff_i[:,1] / 1000
+    dC = diff_i[:,1]
     diffCoeff = fp.CellVariable(mesh=mesh, value=dC)
-    cC = conv_i[:,1] / 1000
+    cC = conv_i[:,1]
     convCoeff = fp.CellVariable(mesh=mesh, value=[cC])
     n.setValue(1e19)
     gradLeft = (0.,)  ## density gradient (at the "left side of the radius") - must be a vector
