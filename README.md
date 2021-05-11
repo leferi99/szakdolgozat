@@ -24,7 +24,7 @@
 - Using runaway electron generation code from OSREP/Runaphys (https://github.com/osrep/Runaphys) as input for the solver
 
 # Reference:
-Model based on the following paper: K.  Särkimäki,  E.  Hirvijoki,  J.  Decker,  J.  Varje  and  T.  Kurki-Suonio,  „An  advection–diffusion model for cross-field runaway electron transport in perturbed magnetic fields”, Plasma Physics and Controlled Fusion, vol. 58., no. 12., p. 125017., 2016., ISSN: 1361-6587. (http://dx.doi.org/10.1088/0741-3335/58/12/125017)
+Model based on the following paper: K.  Särkimäki,  E.  Hirvijoki,  J.  Decker,  J.  Varje  and  T.  Kurki-Suonio,  „An  advection–diffusion model for cross-field runaway electron transport in perturbed magnetic fields”, Plasma Physics and Controlled Fusion, vol. 58., no. 12., p. 125017., 2016., ISSN: 1361-6587. (https://iopscience.iop.org/article/10.1088/0741-3335/58/12/125017)
 
 Using FiPy (https://www.ctcms.nist.gov/fipy/index.html)
 
