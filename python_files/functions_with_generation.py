@@ -361,9 +361,15 @@ def solve_Dreicer_withI(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, d
             re_in_islands = re_ratio * copy.deepcopy(n.value)
             n.value = copy.deepcopy(n.value) - re_in_islands
         else:
-            re_in_islands = re_in_islands + ((copy.deepcopy(n.value) - solution[i-1,0:nr,1]) * re_ratio)
-            n.value = copy.deepcopy(n.value) - ((copy.deepcopy(n.value) - solution[i-1,0:nr,1]) * re_ratio)
-            solution[i,0:nr,1] = copy.deepcopy(n.value) + re_in_islands
+            re_local = PLASMA(ct.c_double(mesh.x[j]),
+                              electron_density,
+                              electron_temperature,
+                              effective_charge,
+                              electric_field,
+                              magnetic_field,
+                              ct.c_double(re_in_islands[j]))
+            re_in_islands[j] = adv_RE_pop(ct.byref(re_local),dt,inv_asp_ratio,ct.c_double(mesh.x[j]),ct.byref(modules),rate_values)
+            n.value = copy.deepcopy(n.value)
 
     plot_solution(solution,ticks=ticks,levels=levels,logdiff=logdiff,figsize=figsize,
                   duration=duration, nt=nt, saveplot=saveplot)
