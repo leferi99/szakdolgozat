@@ -587,7 +587,9 @@ def solve_both_withI(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, dura
                               ct.c_double(re_in_islands[j]))
             re_in_islands[j] = adv_RE_pop(ct.byref(re_local),dt,inv_asp_ratio,ct.c_double(mesh.x[j]),ct.byref(modules),rate_values)
     
-    re_in_islands[nr-1] = 0
+        re_in_islands[nr-1] = 0
+        solution[i,0:nr,1] = copy.deepcopy(n.value) + re_in_islands
+        
     plot_solution(solution,ticks=ticks,levels=levels,logdiff=logdiff,figsize=figsize,
                   duration=duration, nt=nt, saveplot=saveplot)
     if plotcoeff == True:
