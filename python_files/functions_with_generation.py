@@ -199,7 +199,7 @@ def solve_Dreicer(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, duratio
     
     return solution
     
-def solve_avalanche(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, duration = 0.001, nt = 1000,
+def solve_avalanche(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, duration = 0.01, nt = 1000,
                     conv_file = 'convC.txt', diff_file = 'diffC.txt', plotcoeff = False,
                     levels = 300, logdiff = 5, ticks = None, figsize=(10,5), hdf5 = False):
     
@@ -228,7 +228,7 @@ def solve_avalanche(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, durat
     diffCoeff = fp.CellVariable(mesh=mesh, value=dC)
     cC = conv_i[:,1]
     convCoeff = fp.CellVariable(mesh=mesh, value=[cC])
-    n.setValue(1e19)
+    n.setValue(1e14)
     gradLeft = (0.,)  ## density gradient (at the "left side of the radius") - must be a vector
     valueRight = 0.  ## density value (at the "right end of the radius")
     n.faceGrad.constrain(gradLeft, where=mesh.facesLeft)  ## applying Neumann boundary condition
@@ -324,7 +324,7 @@ def solve_Dreicer_withI(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, d
     islands_ratio[islands_ratio < 0] = 0
     re_ratio = islands_ratio[:,1]
     re_in_islands = fp.CellVariable(mesh=mesh)
-    re_in_islands.value = re_ratio * n.value
+    re_in_islands.value = re_ratio * copy.deepcopy(n.value)
     
     gradLeft = (0.,)  ## density gradient (at the "left side of the radius") - must be a vector
     valueRight = 0.  ## density value (at the "right end of the radius")
@@ -342,9 +342,11 @@ def solve_Dreicer_withI(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, d
     inv_asp_ratio = ct.c_double(0.30303)
     rate_values = (ct.c_double * 4)(0.,0.,0.,0.)
     
+    
     eq = (fp.TransientTerm() == fp.DiffusionTerm(coeff=diffCoeff)
           - fp.ConvectionTerm(coeff=convCoeff))
     for i in range(nt):
+        re_temp = copy.deepcopy(re_in_islands.value)
         for j in range(nr):
             plasma_local = PLASMA(ct.c_double(mesh.x[j]),
                                   electron_density,
@@ -354,26 +356,22 @@ def solve_Dreicer_withI(saveplot = False, R_from = 0.7, R_to = 1.0, nr = 1000, d
                                   magnetic_field,
                                   ct.c_double(n.value[j]))
             n.value[j] = adv_RE_pop(ct.byref(plasma_local),dt,inv_asp_ratio,ct.c_double(mesh.x[j]),ct.byref(modules),rate_values)
-        
-        print("{:.1f}".format((i/nt)*100),'%', end='\r')
-        eq.solve(var=n, dt=dt)
-        if i == 0:
-            re_in_islands.value = re_ratio * copy.deepcopy(n.value)
-            n.value = copy.deepcopy(n.value) - re_in_islands.value
-        else:
-            for j in range(nr):
-                re_local = PLASMA(ct.c_double(mesh.x[j]),
+            re_local = PLASMA(ct.c_double(mesh.x[j]),
                                   electron_density,
                                   electron_temperature,
                                   effective_charge,
                                   electric_field,
                                   magnetic_field,
                                   ct.c_double(re_in_islands.value[j]))
-                re_in_islands.value[j] = adv_RE_pop(ct.byref(re_local),dt,inv_asp_ratio,ct.c_double(mesh.x[j]),ct.byref(modules),rate_values)
-                n.value = copy.deepcopy(n.value)
+            re_in_islands.value[j] = adv_RE_pop(ct.byref(re_local),dt,inv_asp_ratio,ct.c_double(mesh.x[j]),ct.byref(modules),rate_values)
         
-        re_in_islands.value[nr-1] = 0
-        solution[i,0:nr,1] = copy.deepcopy(n.value) + copy.deepcopy(re_in_islands.value)
+        print("{:.1f}".format((i/nt)*100),'%', end='\r')
+        eq.solve(var=n, dt=dt)
+        re_in_islands.value = ((re_in_islands.value - re_temp) * re_ratio) + re_temp
+        #re_in_islands.value = 0
+        #n.value = n.value - (n.value * re_ratio)
+        solution[i,0:nr,1] = (copy.deepcopy(n.value) * (1 - re_ratio)) + copy.deepcopy(re_in_islands.value)
+        #solution[i,0:nr,1] = copy.deepcopy(re_in_islands.value)
 
     plot_solution(solution,ticks=ticks,levels=levels,logdiff=logdiff,figsize=figsize,
                   duration=duration, nt=nt, saveplot=saveplot)
