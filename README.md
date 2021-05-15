@@ -24,10 +24,10 @@
 - Using runaway electron generation code from OSREP/Runaphys (https://github.com/osrep/Runaphys) as input for the solver
 
 # Some obtained results
-Dreicer generation 1000x1000 resolution
-![Dreicer](https://github.com/leferi99/szakdolgozat/blob/main/results/Dreicer_1000x1000.jpg)
+Dreicer generation 1000x1000 resolution with islands treated separately
+![Dreicer_withI](https://github.com/leferi99/szakdolgozat/blob/main/results/Dreicer_withI_1000x1000.jpg)
 
-Avalanche generation 1000x1000 resolution with islands treated differently - This is the closest to the reference material. (The avalanche generation is basically none because of the collision time.)
+Avalanche generation 1000x1000 resolution with islands treated separately - This is the closest to the reference material. (The avalanche generation is basically none because of the collision time.)
 ![avalanche_withI](https://github.com/leferi99/szakdolgozat/blob/main/results/avalanche_withI_1000x1000.jpg)
 
 # Reference:
