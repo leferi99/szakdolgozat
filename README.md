@@ -21,7 +21,7 @@
 
 # Goals:
 - 1D modelling of runaway electron transport outside of a cylindrical magnetic field in the ergodic zone along the radius. (Approximating tokamak fusion reactors' toroidal vacuum chambers)
-- Using runaway electron generation code from OSREP/Runaphys (https://github.com/osrep/Runaphys) as input for the solver
+- Using runaway electron generation code from OSREP/Runaphys (https://github.com/osrep/Runaphys) for Dreicer and avalanche generation
 
 # Some obtained results
 Dreicer generation 1000x1000 resolution with islands treated separately
