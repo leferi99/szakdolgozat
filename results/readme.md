@@ -11,8 +11,8 @@ Dreicer generation with 0 RE density initial condition, avalanche generation wit
 Dreicer generation 1000x1000 resolution
 ![Dreicer](https://github.com/leferi99/szakdolgozat/blob/main/results/Dreicer_1000x1000.jpg)
 
-Dreicer generation 100x100 resolution with islands treated differently
-![Dreicer_withI](https://github.com/leferi99/szakdolgozat/blob/main/results/Dreicer_withI_100x100.jpg)
+Dreicer generation 1000x1000 resolution with islands treated differently
+![Dreicer_withI](https://github.com/leferi99/szakdolgozat/blob/main/results/Dreicer_withI_1000x1000.jpg)
 
 0.01s Dreicer generation 100x1000 resolution with islands treated differently
 ![Dreicer_withI](https://github.com/leferi99/szakdolgozat/blob/main/results/Dreicer_withI_100x1000_0.01s.jpg)
