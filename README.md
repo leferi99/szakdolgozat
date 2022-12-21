@@ -1,6 +1,6 @@
 # szakdolgozat - Bachelor's thesis
 
-1D convection-diffusion equation solver (in progress)
+1D convection-diffusion equation solver to be coupled to the Runaphys runaway electron generation model (https://github.com/osrep/Runaphys)
 - time and space dependent coefficinets
 - coefficient reading from CSV files
 - Dirac-delta and uniform density initial value conditions
